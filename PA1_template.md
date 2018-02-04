@@ -11,7 +11,8 @@ This assignment makes use of data from a personal activity monitoring device. Th
 
 This document can be processed by knitr and be transformed into an HTML file. echo = TRUE is applied to all the code chunks so that everyone will be able to read the code.
 
-```{r}
+
+```r
 library(knitr)
 opts_chunk$set(echo = TRUE)
 ```
@@ -20,7 +21,8 @@ opts_chunk$set(echo = TRUE)
 
 Load all the libraries which will be used in the code chunks.
 
-```{r}
+
+```r
 library(ggplot2)
 library(lattice)
 ```
@@ -29,14 +31,16 @@ library(lattice)
 
 1. Load the data
 
-```{r}
+
+```r
 setwd("~/Data/course5week2/RepData_PeerAssessment1")
 activity  <- read.csv("activity.csv", sep = ",", header = T)
 ```
 
 2. Process/transform the data (if necessary) into a format suitable for your analysis
 
-```{r}
+
+```r
 activity$date <- as.Date(as.character(activity$date), format = "%Y-%m-%d")
 ```
 
@@ -44,47 +48,76 @@ activity$date <- as.Date(as.character(activity$date), format = "%Y-%m-%d")
 
 1. Make a histogram of the total number of steps taken each day
 
-```{r}
+
+```r
 totalstep <- aggregate(steps~date, data = activity, FUN = sum)
 hist(totalstep$steps, main = "Total Steps Taken Each Day", xlab = "Number of Steps", col = "yellow")
 ```
 
+![](PA1_template_files/figure-html/unnamed-chunk-5-1.png)<!-- -->
+
 2. Calculate and report the mean and median total number of steps taken per day
 
-```{r}
+
+```r
 meanstep <- mean(totalstep$steps)
 medianstep <- median(totalstep$steps)
 print(meanstep)
+```
+
+```
+## [1] 10766.19
+```
+
+```r
 print(medianstep)
+```
+
+```
+## [1] 10765
 ```
 
 #What is the average daily activity pattern?
 
 1. Make a time series plot of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all days (y-axis)
 
-```{r}
+
+```r
 dailypattern <- aggregate(steps~interval, activity, FUN = mean)
 ggplot(dailypattern, aes(x=interval, y=steps)) + geom_line(col = "blue")
 ```
 
+![](PA1_template_files/figure-html/unnamed-chunk-7-1.png)<!-- -->
+
 2. Which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps?
 
-```{r}
+
+```r
 max <- dailypattern[which.max(dailypattern$steps), 1]
 print(max)
+```
+
+```
+## [1] 835
 ```
 
 #Imputing missing values
 
 1. Calculate and report the total number of missing values in the dataset
 
-```{r}
+
+```r
 sum(is.na(activity$steps))
+```
+
+```
+## [1] 2304
 ```
 
 2. Fill in all of the missing values in the dataset with the mean for that 5-minute interval.
 
-```{r}
+
+```r
 for (i in 1:nrow(activity)) 
 {if (is.na(activity[i,1])) 
         activity[i,1] <- dailypattern[activity[i,3]==dailypattern$interval, ]$steps
@@ -93,24 +126,40 @@ for (i in 1:nrow(activity))
 
 3. Create a new dataset that is equal to the original dataset but with the missing data filled in.
 
-```{r}
+
+```r
 fillactivity <- activity
 ```
 
 4. Make a histogram of the total number of steps taken each day and Calculate and report the mean and median total number of steps taken per day. Do these values differ from the estimates from the first part of the assignment? What is the impact of imputing missing data on the estimates of the total daily number of steps?
 
-```{r}
+
+```r
 totalstep1 <- aggregate(steps~date, data = fillactivity, FUN = sum)
 hist(totalstep1$steps, main = "Total Steps Taken Each Day (with NA filled in)", xlab = "Number of Steps", col = "green")
 ```
 
+![](PA1_template_files/figure-html/unnamed-chunk-12-1.png)<!-- -->
+
 Print mean and median steps
 
-```{r}
+
+```r
 meanstep1 <- mean(totalstep1$steps)
 medianstep1 <- median(totalstep1$steps)
 print(medianstep1)
+```
+
+```
+## [1] 10766.19
+```
+
+```r
 print(meanstep1)
+```
+
+```
+## [1] 10766.19
 ```
 The value is same as before.
 
@@ -118,7 +167,8 @@ The value is same as before.
 
 1. Create a new factor variable in the dataset with two levels -- "weekday" and "weekend" indicating whether a given date is a weekday or weekend day.
 
-```{r}
+
+```r
 fillactivity$w <- weekdays(fillactivity$date)
 for (i in 1:nrow(fillactivity)) 
         {if (fillactivity$w[i] == "Saturday"|fillactivity$w[i] == "Sunday")
@@ -129,7 +179,10 @@ for (i in 1:nrow(fillactivity))
 
 2.Make a panel plot containing a time series plot of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all weekday days or weekend days (y-axis).
 
-```{r}
+
+```r
 weekday <- aggregate(steps~interval + day, data = fillactivity, FUN = mean)
 xyplot(steps~interval|day, data=weekday, type="l", xlab = "Interval", ylab= "Number of steps")
 ```
+
+![](PA1_template_files/figure-html/unnamed-chunk-15-1.png)<!-- -->
